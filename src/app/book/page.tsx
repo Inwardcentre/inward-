@@ -192,18 +192,7 @@ function BookingContent() {
         {/* Right Column: Scheduling Embed */}
         <div className="lg:col-span-7 bg-light-card border border-muted-border/80 rounded-2xl p-4 md:p-6 shadow-sm min-h-[500px] flex flex-col">
           
-          <div className="mb-4 border-b border-muted-border/30 pb-4 flex justify-between items-center">
-            <span className="text-xs font-sans font-bold text-primary-forest uppercase tracking-wider">
-              Onboarding Scheduler
-            </span>
-            <button
-              onClick={() => router.push("/book?status=success")}
-              className="text-xs font-sans font-medium text-ochre-accent hover:underline focus-visible:outline-none"
-              type="button"
-            >
-              [Simulate Success]
-            </button>
-          </div>
+          
 
           {isLoading && (
             <div className="flex-grow flex flex-col items-center justify-center py-20 space-y-4">
