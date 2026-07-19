@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F7F0E3; /* Main warm cream background */
+  --foreground: #0D281B; /* Dark text green */
+  
+  --primary-forest: #133424; /* Primary forest green */
+  --dark-green: #0D281B; /* Dark text green */
+  --ochre-accent: #C57A39; /* Warm ochre accent */
+  --warm-cream: #F7F0E3; /* Warm cream */
+  --light-card: #FFFDF7; /* Light card background */
+  --muted-border: #DED2BD; /* Muted warm border */
+  --muted-text: #59645D; /* Muted body text */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  
+  --color-primary-forest: var(--primary-forest);
+  --color-dark-green: var(--dark-green);
+  --color-ochre-accent: var(--ochre-accent);
+  --color-warm-cream: var(--warm-cream);
+  --color-light-card: var(--light-card);
+  --color-muted-border: var(--muted-border);
+  --color-muted-text: var(--muted-text);
+  
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Reduced-motion support adjustments for a smoother UX */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* ── Scroll-reveal animation ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Hero image gentle float ── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* ── Gentle CTA pulse glow ── */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(197, 122, 57, 0.35); }
+  50% { box-shadow: 0 0 18px 4px rgba(197, 122, 57, 0.15); }
+}
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* ── Fade-in for hero text stagger ── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-fade-up-d1 { animation-delay: 0.1s; }
+.animate-fade-up-d2 { animation-delay: 0.25s; }
+.animate-fade-up-d3 { animation-delay: 0.4s; }
+.animate-fade-up-d4 { animation-delay: 0.55s; }
+.animate-fade-up-d5 { animation-delay: 0.7s; }
