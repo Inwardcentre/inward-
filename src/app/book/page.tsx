@@ -126,7 +126,7 @@ function BookingContent() {
             <ul className="space-y-3 font-sans text-sm md:text-base text-muted-text">
               <li className="flex items-start gap-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-ochre-accent mt-2 flex-shrink-0" />
-                How Inward works
+                How Inward Mental Check-Up works
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-ochre-accent mt-2 flex-shrink-0" />
@@ -134,19 +134,11 @@ function BookingContent() {
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-ochre-accent mt-2 flex-shrink-0" />
-                Pricing
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-ochre-accent mt-2 flex-shrink-0" />
-                General insurance questions
+                Extended Insurance coverage
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-ochre-accent mt-2 flex-shrink-0" />
                 What happens after the call
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-ochre-accent mt-2 flex-shrink-0" />
-                How the private link works
               </li>
             </ul>
           </div>
@@ -173,10 +165,7 @@ function BookingContent() {
                 <span className="w-1.5 h-1.5 rounded-full bg-primary-forest/40 mt-2 flex-shrink-0" />
                 Crisis support
               </li>
-              <li className="flex items-start gap-2.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary-forest/40 mt-2 flex-shrink-0" />
-                Insurance coverage confirmation
-              </li>
+
             </ul>
           </div>
 
