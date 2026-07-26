@@ -90,11 +90,11 @@ export default function PrivacyPage() {
               3. Information collected on the public website
             </h2>
             <p>
-              When you browse our website or schedule an administrative onboarding call, we collect:
+              When you browse our website, schedule an administrative onboarding call, or join an availability waitlist, we collect:
             </p>
             <ul className="list-disc pl-5 space-y-1.5">
               <li>Contact details (first and last name, email address, phone number).</li>
-              <li>Administrative preferences (province, suggested call times).</li>
+              <li>Administrative preferences (country, province/state/region, suggested call times).</li>
               <li>Inbound interest categories (e.g., questions regarding availability, pricing, or practitioner status).</li>
               <li>Technical security logs (IP addresses, user agent, browser types) automatically stored for server security and optimization purposes.</li>
             </ul>
@@ -134,6 +134,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-5 space-y-1.5">
               <li>Responding to inquiries submitted by visitors.</li>
               <li>Scheduling and facilitating administrative onboarding calls.</li>
+              <li>Notifying waitlist subscribers when Inward becomes available in their selected region.</li>
               <li>Providing administrative communication (pricing changes, practitioner onboarding notices).</li>
               <li>Operating, checking, and securing the website.</li>
               <li>Meeting regulatory, compliance, and legal frameworks under Canadian law.</li>
@@ -173,7 +174,7 @@ export default function PrivacyPage() {
               7. Consent and choices
             </h2>
             <p>
-              By submitting details on our booking form, you consent to administrative staff calling or emailing you regarding Inward. You can revoke your consent at any time by contacting our privacy officer.
+              By submitting details on our booking form or availability waitlist, you consent to administrative staff emailing you regarding Inward, including availability in your selected region. You can revoke your consent at any time by contacting our privacy officer.
             </p>
           </section>
 
@@ -193,7 +194,7 @@ export default function PrivacyPage() {
               9. Retention
             </h2>
             <p>
-              Contact details from visitors who book calls but decide not to proceed with Inward are deleted from our administrative files within twelve (12) months, unless a legal obligation requires us to retain them.
+              Contact details from visitors who book calls but decide not to proceed with Inward are deleted from our administrative files within twelve (12) months. Waitlist details are retained while we are considering availability in the selected region or until consent is withdrawn, unless a legal obligation requires us to retain them.
             </p>
           </section>
 

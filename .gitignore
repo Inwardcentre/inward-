@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Waitlist signups contain personal information and must never be committed.
+/data/waitlist/*
+!/data/waitlist/.gitkeep
+!/data/waitlist/README.md

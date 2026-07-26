@@ -1,17 +1,28 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useEffect, Suspense, type FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { siteConfig } from "@/config/site-config";
+import { canadianRegions, countries, countryNameFor } from "@/lib/location-options";
+
+type BookingStage = "location" | "waitlist" | "waitlist-complete" | "booking";
 
 function BookingContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const status = searchParams.get("status");
 
   const [isLoading, setIsLoading] = useState(true);
   const [iframeError, setIframeError] = useState(false);
+  const [stage, setStage] = useState<BookingStage>("location");
+  const [countryCode, setCountryCode] = useState("");
+  const [region, setRegion] = useState("");
+  const [locationError, setLocationError] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [waitlistError, setWaitlistError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // We read the booking URL from our config file, which handles the environment variable
   const bookingUrl = siteConfig.bookingUrl;
@@ -37,6 +48,63 @@ function BookingContent() {
     const formatTime = (d: Date) => d.toISOString().replace(/-|:|\.\d\d\d/g, "");
     const dates = `${formatTime(tomorrow)}/${formatTime(endTomorrow)}`;
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}`;
+  };
+
+  const country = countryNameFor(countryCode);
+  const isEligibleToBook = countryCode === "CA" && region === "BC";
+
+  const handleLocationSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!countryCode || !region) {
+      setLocationError("Choose your country and province, state, or region to continue.");
+      return;
+    }
+
+    setLocationError("");
+    setStage(isEligibleToBook ? "booking" : "waitlist");
+  };
+
+  const handleWaitlistSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setWaitlistError("");
+
+    if (!consent) {
+      setWaitlistError("Please confirm that we may contact you about availability.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          countryCode,
+          country,
+          region: countryCode === "CA"
+            ? canadianRegions.find((item) => item.code === region)?.name ?? region
+            : region,
+          consent,
+        }),
+      });
+
+      const result = (await response.json()) as { error?: string };
+
+      if (!response.ok) {
+        setWaitlistError(result.error ?? "We could not save your request. Please try again.");
+        return;
+      }
+
+      setStage("waitlist-complete");
+    } catch {
+      setWaitlistError("We could not save your request. Please check your connection and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // RENDER BOOKING CONFIRMATION STATE
@@ -95,6 +163,197 @@ function BookingContent() {
             {siteConfig.businessEmail}
           </a>
         </p>
+      </div>
+    );
+  }
+
+  if (stage === "location") {
+    return (
+      <div className="max-w-[620px] mx-auto px-6 py-16 md:py-24">
+        <div className="bg-light-card border border-muted-border/80 rounded-2xl p-6 md:p-10 shadow-sm">
+          <span className="inline-flex px-3 py-1.5 rounded-full bg-primary-forest/5 border border-primary-forest/15 text-primary-forest text-xs font-semibold tracking-wide uppercase mb-6">
+            Availability check
+          </span>
+          <h1 className="font-sans font-bold text-3xl md:text-4xl text-dark-green leading-tight mb-4">
+            Where are you located?
+          </h1>
+          <p className="font-sans text-base leading-relaxed text-muted-text mb-8">
+            Inward is currently available in British Columbia, Canada. Tell us where you are and we will take you to booking or help you join the waitlist.
+          </p>
+
+          <form onSubmit={handleLocationSubmit} className="space-y-5" noValidate>
+            <div>
+              <label htmlFor="country" className="block text-sm font-bold text-primary-forest mb-2">
+                Country
+              </label>
+              <select
+                id="country"
+                value={countryCode}
+                onChange={(event) => {
+                  setCountryCode(event.target.value);
+                  setRegion("");
+                }}
+                className="w-full rounded-xl border border-muted-border bg-warm-cream px-4 py-3 text-dark-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ochre-accent"
+                required
+              >
+                <option value="">Select your country</option>
+                {countries.map((item) => (
+                  <option key={item.code} value={item.code}>{item.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {countryCode === "CA" ? (
+              <div>
+                <label htmlFor="region" className="block text-sm font-bold text-primary-forest mb-2">
+                  Province or territory
+                </label>
+                <select
+                  id="region"
+                  value={region}
+                  onChange={(event) => setRegion(event.target.value)}
+                  className="w-full rounded-xl border border-muted-border bg-warm-cream px-4 py-3 text-dark-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ochre-accent"
+                  required
+                >
+                  <option value="">Select your province or territory</option>
+                  {canadianRegions.map((item) => (
+                    <option key={item.code} value={item.code}>{item.name}</option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <div>
+                <label htmlFor="region" className="block text-sm font-bold text-primary-forest mb-2">
+                  State, province, or region
+                </label>
+                <input
+                  id="region"
+                  type="text"
+                  value={region}
+                  onChange={(event) => setRegion(event.target.value)}
+                  className="w-full rounded-xl border border-muted-border bg-warm-cream px-4 py-3 text-dark-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ochre-accent"
+                  autoComplete="address-level1"
+                  maxLength={120}
+                  required
+                />
+              </div>
+            )}
+
+            {locationError && <p className="text-sm text-red-700" role="alert">{locationError}</p>}
+
+            <button
+              type="submit"
+              className="inline-flex w-full items-center justify-center px-6 py-3.5 rounded-full bg-primary-forest text-warm-cream font-sans font-bold text-sm tracking-wide transition-all hover:bg-dark-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ochre-accent"
+            >
+              Continue
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  if (stage === "waitlist") {
+    const selectedRegion = countryCode === "CA"
+      ? canadianRegions.find((item) => item.code === region)?.name ?? region
+      : region;
+
+    return (
+      <div className="max-w-[620px] mx-auto px-6 py-16 md:py-24">
+        <div className="bg-light-card border border-muted-border/80 rounded-2xl p-6 md:p-10 shadow-sm">
+          <span className="inline-flex px-3 py-1.5 rounded-full bg-ochre-accent/10 text-ochre-accent text-xs font-semibold tracking-wide uppercase mb-6">
+            Join the waitlist
+          </span>
+          <h1 className="font-sans font-bold text-3xl md:text-4xl text-dark-green leading-tight mb-4">
+            We are not booking in {selectedRegion} yet.
+          </h1>
+          <p className="font-sans text-base leading-relaxed text-muted-text mb-8">
+            Leave your details and we will contact you when Inward becomes available in {selectedRegion}, {country}.
+          </p>
+
+          <form onSubmit={handleWaitlistSubmit} className="space-y-5">
+            <div>
+              <label htmlFor="name" className="block text-sm font-bold text-primary-forest mb-2">Name</label>
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                className="w-full rounded-xl border border-muted-border bg-warm-cream px-4 py-3 text-dark-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ochre-accent"
+                autoComplete="name"
+                maxLength={120}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="email" className="block text-sm font-bold text-primary-forest mb-2">Email address</label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className="w-full rounded-xl border border-muted-border bg-warm-cream px-4 py-3 text-dark-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ochre-accent"
+                autoComplete="email"
+                maxLength={254}
+                required
+              />
+            </div>
+            <label className="flex items-start gap-3 text-sm leading-relaxed text-muted-text cursor-pointer">
+              <input
+                type="checkbox"
+                checked={consent}
+                onChange={(event) => setConsent(event.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-muted-border text-primary-forest focus:ring-ochre-accent"
+                required
+              />
+              <span>I agree that Inward may email me when services become available in my region. I can withdraw my consent at any time.</span>
+            </label>
+            <p className="text-xs leading-relaxed text-muted-text">
+              Please do not include health or other sensitive information. Read our <Link href="/privacy" className="underline hover:text-ochre-accent">Privacy Policy</Link>.
+            </p>
+
+            {waitlistError && <p className="text-sm text-red-700" role="alert">{waitlistError}</p>}
+
+            <div className="flex flex-col-reverse sm:flex-row gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => setStage("location")}
+                className="inline-flex flex-1 items-center justify-center px-5 py-3 rounded-full border border-primary-forest text-primary-forest font-sans font-bold text-sm hover:bg-primary-forest/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ochre-accent"
+              >
+                Change location
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="inline-flex flex-1 items-center justify-center px-5 py-3 rounded-full bg-primary-forest text-warm-cream font-sans font-bold text-sm transition-all hover:bg-dark-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ochre-accent disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSubmitting ? "Joining waitlist…" : "Join the waitlist"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  if (stage === "waitlist-complete") {
+    return (
+      <div className="max-w-[620px] mx-auto px-6 py-16 md:py-24 text-center">
+        <div className="w-16 h-16 bg-ochre-accent/10 text-ochre-accent rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h1 className="font-sans font-bold text-3xl text-dark-green leading-tight mb-4">You are on the waitlist.</h1>
+        <p className="font-sans text-base leading-relaxed text-muted-text mb-8">
+          We will email you when Inward becomes available in {countryCode === "CA" ? canadianRegions.find((item) => item.code === region)?.name : region}, {country}.
+        </p>
+        <Link
+          href="/"
+          className="inline-flex items-center justify-center px-6 py-3 rounded-full border border-primary-forest text-primary-forest font-sans font-bold text-sm tracking-wide transition-all hover:bg-primary-forest/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ochre-accent"
+        >
+          Return to Homepage
+        </Link>
       </div>
     );
   }
