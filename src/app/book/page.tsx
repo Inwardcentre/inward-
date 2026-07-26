@@ -4,7 +4,13 @@ import { useState, useEffect, Suspense, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { siteConfig } from "@/config/site-config";
-import { canadianRegions, countries, countryNameFor } from "@/lib/location-options";
+import {
+  countries,
+  countryNameFor,
+  regionLabelFor,
+  regionNameFor,
+  regionsForCountry,
+} from "@/lib/location-options";
 
 type BookingStage = "location" | "waitlist" | "waitlist-complete" | "booking";
 
@@ -52,6 +58,7 @@ function BookingContent() {
 
   const country = countryNameFor(countryCode);
   const isEligibleToBook = countryCode === "CA" && region === "BC";
+  const regionOptions = regionsForCountry(countryCode);
 
   const handleLocationSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -85,9 +92,7 @@ function BookingContent() {
           email,
           countryCode,
           country,
-          region: countryCode === "CA"
-            ? canadianRegions.find((item) => item.code === region)?.name ?? region
-            : region,
+          region: regionOptions ? regionNameFor(countryCode, region) : region,
           consent,
         }),
       });
@@ -203,10 +208,10 @@ function BookingContent() {
               </select>
             </div>
 
-            {countryCode === "CA" ? (
+            {regionOptions ? (
               <div>
                 <label htmlFor="region" className="block text-sm font-bold text-primary-forest mb-2">
-                  Province or territory
+                  {regionLabelFor(countryCode)}
                 </label>
                 <select
                   id="region"
@@ -215,8 +220,8 @@ function BookingContent() {
                   className="w-full rounded-xl border border-muted-border bg-warm-cream px-4 py-3 text-dark-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ochre-accent"
                   required
                 >
-                  <option value="">Select your province or territory</option>
-                  {canadianRegions.map((item) => (
+                  <option value="">Select your {regionLabelFor(countryCode).toLowerCase()}</option>
+                  {regionOptions.map((item) => (
                     <option key={item.code} value={item.code}>{item.name}</option>
                   ))}
                 </select>
@@ -254,9 +259,7 @@ function BookingContent() {
   }
 
   if (stage === "waitlist") {
-    const selectedRegion = countryCode === "CA"
-      ? canadianRegions.find((item) => item.code === region)?.name ?? region
-      : region;
+    const selectedRegion = regionOptions ? regionNameFor(countryCode, region) : region;
 
     return (
       <div className="max-w-[620px] mx-auto px-6 py-16 md:py-24">
@@ -346,7 +349,7 @@ function BookingContent() {
         </div>
         <h1 className="font-sans font-bold text-3xl text-dark-green leading-tight mb-4">You are on the waitlist.</h1>
         <p className="font-sans text-base leading-relaxed text-muted-text mb-8">
-          We will email you when Inward becomes available in {countryCode === "CA" ? canadianRegions.find((item) => item.code === region)?.name : region}, {country}.
+          We will email you when Inward becomes available in {regionOptions ? regionNameFor(countryCode, region) : region}, {country}.
         </p>
         <Link
           href="/"

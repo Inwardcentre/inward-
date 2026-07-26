@@ -188,7 +188,7 @@ export default function Home() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-ochre-accent" />
-                    Covered by extended insurance
+                    Eligible for extended insurance coverage*
                   </div>
                 </div>
               </div>
@@ -556,6 +556,14 @@ export default function Home() {
               No commitment. This is not a therapy or clinical consultation.
             </p>
           </ScrollReveal>
+        </section>
+
+        <section className="bg-warm-cream border-b border-muted-border/30 py-6">
+          <div className="max-w-[1180px] mx-auto px-6">
+            <p className="text-xs font-sans leading-relaxed text-muted-text">
+              * Eligibility for extended insurance coverage and reimbursement depends on your insurer, individual plan, practitioner type, and the service provided. Coverage is not guaranteed.
+            </p>
+          </div>
         </section>
 
       </div>
